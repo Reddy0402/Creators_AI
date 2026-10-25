@@ -11,7 +11,7 @@ from app.ai.output_models import StrategyOut
 
 PLATFORMS = ("Instagram", "LinkedIn", "X", "Facebook", "TikTok", "YouTube", "Email")
 Platform = Literal["Instagram", "LinkedIn", "X", "Facebook", "TikTok", "YouTube", "Email"]
-ContentType = Literal["social_post", "ad_copy", "video_script", "email"]
+ContentType = Literal["social_post", "ad_copy", "video_script", "email", "tagline"]
 AssetStatus = Literal["draft", "approved"]
 RefineAction = Literal[
     "shorten",
@@ -157,3 +157,19 @@ class GenerateContentRequest(BaseModel):
 class RefineRequest(BaseModel):
     action: RefineAction
     target_platform: Optional[Platform] = None
+
+
+class GenerateTaglinesRequest(BaseModel):
+    company_name: Optional[str] = ""
+    industry: Optional[str] = ""
+    differentiator: Optional[str] = ""
+    style: Optional[str] = "All Styles"
+    count: int = Field(default=5, ge=1, le=10)
+
+
+class SaveTaglineRequest(BaseModel):
+    tagline: Required = Field(max_length=200)
+    style: Optional[str] = "Catchy & Punchy"
+    rationale: Optional[str] = ""
+    keywords: Optional[list[str]] = None
+

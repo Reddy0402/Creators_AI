@@ -77,6 +77,13 @@ class EmailOut(_Out):
     call_to_action: Text
 
 
+class TaglineOut(_Out):
+    tagline: Text
+    style: Text
+    rationale: str = ""
+    keywords: list[str] = Field(default_factory=list, max_length=6)
+
+
 class SocialPostVariations(_Out):
     variations: list[SocialPostOut] = Field(min_length=1)
 
@@ -93,12 +100,17 @@ class EmailVariations(_Out):
     variations: list[EmailOut] = Field(min_length=1)
 
 
+class TaglineVariations(_Out):
+    variations: list[TaglineOut] = Field(min_length=1)
+
+
 # content_type -> (single-asset model, wrapper holding N variations)
 CONTENT_MODELS: dict[str, tuple[type[_Out], type[_Out]]] = {
     "social_post": (SocialPostOut, SocialPostVariations),
     "ad_copy": (AdCopyOut, AdCopyVariations),
     "video_script": (VideoScriptOut, VideoScriptVariations),
     "email": (EmailOut, EmailVariations),
+    "tagline": (TaglineOut, TaglineVariations),
 }
 
 CONTENT_TYPES = tuple(CONTENT_MODELS)
@@ -111,5 +123,9 @@ def asset_title(content_type: str, content: dict) -> str:
         "ad_copy": "headline",
         "video_script": "concept",
         "email": "subject",
-    }[content_type]
-    return str(content.get(key, "Untitled"))[:200]
+        "tagline": "tagline",
+    }.get(content_type)
+    if key and key in content:
+        return str(content[key])[:200]
+    return "Untitled"
+

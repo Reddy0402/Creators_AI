@@ -9,6 +9,8 @@ from app.schemas import (
     CampaignSummary,
     CampaignUpdate,
     GenerateContentRequest,
+    GenerateTaglinesRequest,
+    SaveTaglineRequest,
 )
 from app.services import campaign_service, content_service
 from app.services.ai_service import AIService, get_ai_service
@@ -68,3 +70,31 @@ def generate_content(
     ai: AIService = Depends(get_ai_service),
 ):
     return content_service.generate_content(db, campaign_id, request, ai)
+
+
+@router.post(
+    "/{campaign_id}/generate-taglines",
+    response_model=list[dict],
+    status_code=status.HTTP_200_OK,
+)
+def generate_taglines(
+    campaign_id: int,
+    request: GenerateTaglinesRequest,
+    db: Session = Depends(get_db),
+    ai: AIService = Depends(get_ai_service),
+):
+    return content_service.generate_taglines(db, campaign_id, request, ai)
+
+
+@router.post(
+    "/{campaign_id}/taglines",
+    response_model=AssetOut,
+    status_code=status.HTTP_201_CREATED,
+)
+def save_tagline(
+    campaign_id: int,
+    request: SaveTaglineRequest,
+    db: Session = Depends(get_db),
+):
+    return content_service.save_tagline(db, campaign_id, request)
+

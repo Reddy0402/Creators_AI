@@ -5,7 +5,13 @@ from sqlalchemy.orm import Session
 from app.ai.output_models import CONTENT_MODELS, asset_title
 from app.errors import ConflictError, InvalidContentError, NotFoundError
 from app.models import CreativeAsset
-from app.schemas import AssetUpdate, GenerateContentRequest, RefineRequest
+from app.schemas import (
+    AssetUpdate,
+    GenerateContentRequest,
+    GenerateTaglinesRequest,
+    RefineRequest,
+    SaveTaglineRequest,
+)
 from app.services import campaign_service
 from app.services.ai_service import AIService
 
@@ -112,6 +118,44 @@ def delete_asset(db: Session, asset_id: int) -> None:
     asset = get_asset(db, asset_id)
     db.delete(asset)
     db.commit()
+
+
+def generate_taglines(
+    db: Session, campaign_id: int, request: GenerateTaglinesRequest, ai: AIService
+) -> list[dict]:
+    campaign = campaign_service.get_campaign(db, campaign_id)
+    return ai.generate_taglines(
+        campaign,
+        company_name=request.company_name or "",
+        industry=request.industry or "",
+        differentiator=request.differentiator or "",
+        style=request.style or "All Styles",
+        count=request.count,
+    )
+
+
+def save_tagline(
+    db: Session, campaign_id: int, request: SaveTaglineRequest
+) -> CreativeAsset:
+    campaign = campaign_service.get_campaign(db, campaign_id)
+    content = {
+        "tagline": request.tagline,
+        "style": request.style or "Catchy & Punchy",
+        "rationale": request.rationale or "",
+        "keywords": request.keywords or [],
+    }
+    asset = CreativeAsset(
+        campaign_id=campaign.id,
+        content_type="tagline",
+        platform=campaign.platform,
+        title=request.tagline[:200],
+        content=content,
+        status="approved",
+    )
+    db.add(asset)
+    db.commit()
+    db.refresh(asset)
+    return asset
 
 
 def _describe(exc: ValidationError) -> str:

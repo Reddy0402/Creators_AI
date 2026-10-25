@@ -1,4 +1,4 @@
-import { ArrowLeft, FileText, Trash2 } from 'lucide-react'
+import { ArrowLeft, Compass, FileText, Image as ImageIcon, Sparkles, Trash2 } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { ApiError } from '../api/client'
@@ -13,6 +13,7 @@ import { LoadingState } from '../components/LoadingState'
 import { Notice } from '../components/Notice'
 import { SafeImage } from '../components/SafeImage'
 import { StrategyPanel } from '../components/StrategyPanel'
+import { TaglinesStudio } from '../components/TaglinesStudio'
 import { VisualAssetsSection } from '../components/VisualAssetsSection'
 import { useNotice } from '../hooks/useNotice'
 import { useUnsavedGuard } from '../hooks/useUnsavedGuard'
@@ -39,11 +40,13 @@ export function CampaignWorkspacePage() {
   const [generateError, setGenerateError] = useState<string | null>(null)
   const [deleting, setDeleting] = useState(false)
 
-  // Which editors currently hold unsaved edits.
   const dirtyIds = useRef(new Set<number>())
   const [dirtyCount, setDirtyCount] = useState(0)
   const [strategyDirty, setStrategyDirty] = useState(false)
   useUnsavedGuard(strategyDirty || dirtyCount > 0)
+
+  type WorkspaceTab = 'taglines' | 'content' | 'visuals' | 'strategy'
+  const [activeTab, setActiveTab] = useState<WorkspaceTab>('content')
 
   const handleAssetDirty = useCallback((id: number, dirty: boolean) => {
     const ids = dirtyIds.current
@@ -221,67 +224,179 @@ export function CampaignWorkspacePage() {
         </details>
       </header>
 
-      <VisualAssetsSection
-        campaignId={campaign.id}
-        visuals={visuals}
-        onChange={setVisuals}
-        imageReady={imageReady}
-        onNotify={showNotice}
-      />
+      {/* Navigation tabs */}
+      <nav aria-label="Campaign sections" className="border-b border-line">
+        <div className="-mb-px flex flex-wrap gap-2 sm:gap-6">
+          <button
+            type="button"
+            onClick={() => setActiveTab('content')}
+            className={`inline-flex items-center gap-2 border-b-2 px-3 py-2.5 text-sm font-medium transition-colors ${
+              activeTab === 'content'
+                ? 'border-brand-primary text-zinc-50'
+                : 'border-transparent text-zinc-400 hover:border-zinc-700 hover:text-zinc-200'
+            }`}
+          >
+            <FileText className="size-4" aria-hidden />
+            Marketing Copy
+            {assets.filter((a) => a.content_type !== 'tagline').length > 0 && (
+              <span className="rounded-full bg-raised px-2 py-0.5 text-xs text-zinc-300">
+                {assets.filter((a) => a.content_type !== 'tagline').length}
+              </span>
+            )}
+          </button>
 
-      <StrategyPanel
-        campaign={campaign}
-        onCampaignChange={setCampaign}
-        onSaved={showNotice}
-        onDirtyChange={setStrategyDirty}
-      />
+          <button
+            type="button"
+            onClick={() => setActiveTab('taglines')}
+            className={`inline-flex items-center gap-2 border-b-2 px-3 py-2.5 text-sm font-medium transition-colors ${
+              activeTab === 'taglines'
+                ? 'border-brand-primary text-zinc-50'
+                : 'border-transparent text-zinc-400 hover:border-zinc-700 hover:text-zinc-200'
+            }`}
+          >
+            <Sparkles className="size-4 text-brand-primary" aria-hidden />
+            Taglines & Slogans
+            {assets.filter((a) => a.content_type === 'tagline').length > 0 && (
+              <span className="rounded-full bg-brand-primary/20 px-2 py-0.5 text-xs text-brand-primary">
+                {assets.filter((a) => a.content_type === 'tagline').length}
+              </span>
+            )}
+          </button>
 
-      <section aria-labelledby="content-heading" className="space-y-4">
-        <h2 id="content-heading" className="text-lg font-semibold text-zinc-100">
-          Create content
-        </h2>
+          <button
+            type="button"
+            onClick={() => setActiveTab('visuals')}
+            className={`inline-flex items-center gap-2 border-b-2 px-3 py-2.5 text-sm font-medium transition-colors ${
+              activeTab === 'visuals'
+                ? 'border-brand-primary text-zinc-50'
+                : 'border-transparent text-zinc-400 hover:border-zinc-700 hover:text-zinc-200'
+            }`}
+          >
+            <ImageIcon className="size-4" aria-hidden />
+            Visual Assets
+            {visuals.length > 0 && (
+              <span className="rounded-full bg-raised px-2 py-0.5 text-xs text-zinc-300">
+                {visuals.length}
+              </span>
+            )}
+          </button>
 
-        {campaign.strategy ? (
-          <GeneratePanel
-            defaultPlatform={campaign.platform}
-            defaultTone={campaign.tone}
-            generating={generating}
-            onGenerate={generate}
-          />
-        ) : (
-          <p className="rounded-lg border border-line bg-surface px-4 py-3 text-sm text-zinc-400">
-            Generate a campaign strategy first. Your content will follow it.
-          </p>
-        )}
+          <button
+            type="button"
+            onClick={() => setActiveTab('strategy')}
+            className={`inline-flex items-center gap-2 border-b-2 px-3 py-2.5 text-sm font-medium transition-colors ${
+              activeTab === 'strategy'
+                ? 'border-brand-primary text-zinc-50'
+                : 'border-transparent text-zinc-400 hover:border-zinc-700 hover:text-zinc-200'
+            }`}
+          >
+            <Compass className="size-4" aria-hidden />
+            Strategy & Brief
+          </button>
+        </div>
+      </nav>
 
-        {generateError && <ErrorMessage message={generateError} />}
-        {generating && <LoadingState label="Preparing your content…" />}
+      {/* Tab Panels */}
+      {activeTab === 'taglines' && (
+        <TaglinesStudio
+          campaign={campaign}
+          savedAssets={assets.filter((a) => a.content_type === 'tagline')}
+          onAssetSaved={(newAsset) => setAssets((current) => [newAsset, ...current])}
+          onAssetDeleted={(id) => setAssets((current) => current.filter((a) => a.id !== id))}
+          onNotify={showNotice}
+        />
+      )}
 
-        {assets.length === 0 && !generating ? (
-          <EmptyState
-            icon={FileText}
-            title="No content yet"
-            description="Create a social post, ad, video script or email and it will appear here."
-          />
-        ) : (
-          <div className="space-y-4">
-            {assets.map((asset) => (
-              <ContentCard
-                key={asset.id}
-                asset={asset}
-                onUpdated={(updated) =>
-                  setAssets((current) => current.map((a) => (a.id === updated.id ? updated : a)))
-                }
-                onDeleted={(id) => setAssets((current) => current.filter((a) => a.id !== id))}
-                onRefined={(revised) => setAssets((current) => [revised, ...current])}
-                onExploreAnother={exploreAnother}
-                onNotify={showNotice}
-                onDirtyChange={handleAssetDirty}
-              />
-            ))}
+      {activeTab === 'visuals' && (
+        <VisualAssetsSection
+          campaignId={campaign.id}
+          visuals={visuals}
+          onChange={setVisuals}
+          imageReady={imageReady}
+          onNotify={showNotice}
+        />
+      )}
+
+      {activeTab === 'strategy' && (
+        <StrategyPanel
+          campaign={campaign}
+          onCampaignChange={setCampaign}
+          onSaved={showNotice}
+          onDirtyChange={setStrategyDirty}
+        />
+      )}
+
+      {activeTab === 'content' && (
+        <section aria-labelledby="content-heading" className="space-y-6">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <h2 id="content-heading" className="text-lg font-semibold text-zinc-100">
+                Marketing Copy
+              </h2>
+              <p className="text-xs text-zinc-400">
+                Generate social posts, ad copies, video scripts, emails and more tailored to your campaign.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setActiveTab('taglines')}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-brand-primary/30 bg-brand-primary/10 px-3 py-1.5 text-xs font-medium text-brand-primary hover:bg-brand-primary/20 transition-colors"
+            >
+              <Sparkles className="size-3.5" aria-hidden /> Try Taglines & Slogans Studio
+            </button>
           </div>
-        )}
-      </section>
+
+          {campaign.strategy ? (
+            <GeneratePanel
+              defaultPlatform={campaign.platform}
+              defaultTone={campaign.tone}
+              generating={generating}
+              onGenerate={generate}
+            />
+          ) : (
+            <div className="flex items-center justify-between gap-4 rounded-lg border border-line bg-surface px-4 py-3 text-sm text-zinc-400">
+              <span>Generate a campaign strategy first to give your content deep brand alignment.</span>
+              <button
+                type="button"
+                onClick={() => setActiveTab('strategy')}
+                className="btn-secondary text-xs"
+              >
+                Go to Strategy
+              </button>
+            </div>
+          )}
+
+          {generateError && <ErrorMessage message={generateError} />}
+          {generating && <LoadingState label="Preparing your content…" />}
+
+          {assets.filter((a) => a.content_type !== 'tagline').length === 0 && !generating ? (
+            <EmptyState
+              icon={FileText}
+              title="No copy generated yet"
+              description="Create a social post, ad, video script or email above to begin."
+            />
+          ) : (
+            <div className="space-y-4">
+              {assets
+                .filter((a) => a.content_type !== 'tagline')
+                .map((asset) => (
+                  <ContentCard
+                    key={asset.id}
+                    asset={asset}
+                    onUpdated={(updated) =>
+                      setAssets((current) => current.map((a) => (a.id === updated.id ? updated : a)))
+                    }
+                    onDeleted={(id) => setAssets((current) => current.filter((a) => a.id !== id))}
+                    onRefined={(revised) => setAssets((current) => [revised, ...current])}
+                    onExploreAnother={exploreAnother}
+                    onNotify={showNotice}
+                    onDirtyChange={handleAssetDirty}
+                  />
+                ))}
+            </div>
+          )}
+        </section>
+      )}
 
       <Notice message={notice} />
     </div>

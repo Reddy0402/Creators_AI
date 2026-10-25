@@ -1,4 +1,4 @@
-import type { Asset, AdCopy, Email, SocialPost, VideoScript } from '../types/asset'
+import type { Asset, AdCopy, Email, SocialPost, Tagline, VideoScript } from '../types/asset'
 
 /** Plain-text version of an asset, used by the Copy button. */
 export function assetToText(asset: Asset): string {
@@ -40,6 +40,20 @@ export function assetToText(asset: Asset): string {
         `Closing call to action: ${c.closing_call_to_action}`,
         `Estimated duration: ${c.estimated_duration_seconds}s`,
       ].join('\n\n')
+    }
+    case 'tagline': {
+      const c = asset.content as Tagline
+      return [
+        `"${c.tagline}"`,
+        c.style ? `Style: ${c.style}` : '',
+        c.rationale ? `Rationale: ${c.rationale}` : '',
+        c.keywords && c.keywords.length > 0 ? `Keywords: ${c.keywords.join(', ')}` : '',
+      ]
+        .filter(Boolean)
+        .join('\n\n')
+    }
+    default: {
+      return JSON.stringify(asset.content, null, 2)
     }
   }
 }

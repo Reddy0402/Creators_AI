@@ -1,12 +1,13 @@
 import type { Platform } from './campaign'
 
-export type ContentType = 'social_post' | 'ad_copy' | 'video_script' | 'email'
+export type ContentType = 'social_post' | 'ad_copy' | 'video_script' | 'email' | 'tagline'
 
 export const CONTENT_TYPES: { value: ContentType; label: string }[] = [
   { value: 'social_post', label: 'Social post' },
   { value: 'ad_copy', label: 'Ad copy' },
   { value: 'video_script', label: 'Video script' },
   { value: 'email', label: 'Email' },
+  { value: 'tagline', label: 'Tagline & slogan' },
 ]
 
 export const contentTypeLabel = (type: string) =>
@@ -48,7 +49,40 @@ export interface Email {
   call_to_action: string
 }
 
-export type AssetContent = SocialPost | AdCopy | VideoScript | Email
+export interface Tagline {
+  tagline: string
+  style: string
+  rationale?: string
+  keywords?: string[]
+}
+
+export const TAGLINE_STYLES = [
+  'All Styles',
+  'Catchy & Punchy',
+  'Minimalist & Modern',
+  'Emotional & Inspiring',
+  'Benefit-Driven',
+  'Playful & Clever',
+] as const
+
+export type TaglineStyle = (typeof TAGLINE_STYLES)[number]
+
+export interface GenerateTaglinesInput {
+  company_name?: string
+  industry?: string
+  differentiator?: string
+  style?: string
+  count?: number
+}
+
+export interface SaveTaglineInput {
+  tagline: string
+  style?: string
+  rationale?: string
+  keywords?: string[]
+}
+
+export type AssetContent = SocialPost | AdCopy | VideoScript | Email | Tagline
 
 export interface Asset {
   id: number

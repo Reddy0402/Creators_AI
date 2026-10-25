@@ -8,7 +8,7 @@ export default defineConfig({
   server: {
     port: 5173,
     // The browser talks to /api on the dev server; Vite forwards it to FastAPI.
-    proxy: { '/api': 'http://127.0.0.1:8000' },
+    proxy: { '/api': process.env.VITE_BACKEND_URL || 'http://127.0.0.1:8000' },
   },
   test: {
     environment: 'jsdom',

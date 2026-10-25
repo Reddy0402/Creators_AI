@@ -17,6 +17,7 @@ CONTENT_LABELS = {
     "ad_copy": "advertising copy",
     "video_script": "short-video script",
     "email": "marketing email",
+    "tagline": "product tagline & slogan",
 }
 
 ACTION_INSTRUCTIONS = {
@@ -72,6 +73,8 @@ _ITEM_SCHEMAS = {
     "email": """\
 {"subject": "subject line", "preview_text": "inbox preview text", "body": "full email body with line breaks",
  "call_to_action": "the main call to action"}""",
+    "tagline": """\
+{"tagline": "memorable punchy tagline", "style": "style category (e.g. Catchy & Punchy, Minimalist & Modern, Emotional & Inspiring, Benefit-Driven, Playful & Clever)", "rationale": "one-sentence explanation of why it works", "keywords": ["keyword1", "keyword2"]}""",
 }
 
 _PLATFORM_NOTES = {
@@ -199,3 +202,49 @@ def refine_messages(
     }
     user = f"Revise the {label}.\n\n" + _data_block(data)
     return [{"role": "system", "content": system}, {"role": "user", "content": user}]
+
+
+def tagline_studio_messages(
+    campaign: Campaign,
+    company_name: str,
+    industry: str,
+    differentiator: str,
+    style: str,
+    count: int,
+) -> list[dict]:
+    style_instruction = (
+        f"Generate taglines in the '{style}' style."
+        if style and style != "All Styles"
+        else "Generate a diverse variety across styles: Catchy & Punchy, Minimalist & Modern, Emotional & Inspiring, Benefit-Driven, and Playful & Clever."
+    )
+    system = (
+        f"You are a world-class creative brand director and advertising copywriter. Craft {count} "
+        "distinct, memorable, and high-impact product taglines and company slogans.\n\n"
+        + _RULES
+        + "\nTagline Craft Requirements:\n"
+        f"- {style_instruction}\n"
+        "- Each tagline must be concise, rhythmically pleasing, and instantly memorable (typically 2 to 7 words).\n"
+        "- Elevate the product's identity and resonate deeply with the company's positioning and target audience.\n"
+        "- Each variation must be completely distinct in hook, syntax, and angle.\n"
+        "- In 'style', state the style classification.\n"
+        "- In 'rationale', provide a concise 1-sentence strategic rationale for why it works.\n"
+        "- In 'keywords', provide 2-4 core brand association keywords.\n\n"
+        f'Output JSON: {{"variations": [ITEM, ...]}} with exactly {count} item(s). ITEM schema:\n'
+        + _ITEM_SCHEMAS["tagline"]
+        + "\n\nQuality constraints: bold, creative, evocative, no generic clichés."
+    )
+    data = {
+        "product_or_service": campaign.product_or_service,
+        "company_name": company_name or campaign.name,
+        "industry": industry or "General",
+        "key_differentiator_usp": differentiator or campaign.objective,
+        "target_audience": campaign.target_audience,
+        "brand_tone": campaign.tone,
+        "product_facts_and_brief": campaign.brief,
+        "campaign_core_message": (campaign.strategy or {}).get("core_message"),
+        "requested_style": style or "All Styles",
+        "requested_count": count,
+    }
+    user = f"Generate {count} product taglines and company slogans.\n\n" + _data_block(data)
+    return [{"role": "system", "content": system}, {"role": "user", "content": user}]
+

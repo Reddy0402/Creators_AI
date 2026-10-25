@@ -6,6 +6,7 @@ import type {
   ContentType,
   Email,
   SocialPost,
+  Tagline,
   VideoScene,
   VideoScript,
 } from '../types/asset'
@@ -74,6 +75,30 @@ export function AssetView({ asset }: { asset: Asset }) {
         </div>
       )
     }
+    case 'tagline': {
+      const c = asset.content as Tagline
+      return (
+        <div className="space-y-3">
+          <blockquote className="border-l-2 border-accent pl-3 text-lg font-semibold tracking-tight text-zinc-50 italic">
+            “{c.tagline}”
+          </blockquote>
+          {c.style && <Row label="Style" text={c.style} />}
+          {c.rationale && <Prose text={c.rationale} />}
+          {c.keywords && c.keywords.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 pt-1">
+              {c.keywords.map((kw, i) => (
+                <span
+                  key={i}
+                  className="rounded-full border border-line bg-raised px-2.5 py-0.5 text-xs font-medium text-zinc-300"
+                >
+                  #{kw.replace(/^#/, '')}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+      )
+    }
   }
 }
 
@@ -119,6 +144,11 @@ const TEXT_FIELDS: Record<Exclude<ContentType, 'video_script'>, FieldSpec[]> = {
     { key: 'preview_text', label: 'Preview text' },
     { key: 'body', label: 'Body', multiline: true },
     { key: 'call_to_action', label: 'Call to action' },
+  ],
+  tagline: [
+    { key: 'tagline', label: 'Tagline & Slogan' },
+    { key: 'style', label: 'Style classification' },
+    { key: 'rationale', label: 'Strategic rationale', multiline: true },
   ],
 }
 

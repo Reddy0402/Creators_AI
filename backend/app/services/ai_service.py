@@ -83,6 +83,24 @@ class AIService:
         result = self._complete(f"refine:{action}", messages, item_model, temperature=0.6)
         return result.model_dump()
 
+    def generate_taglines(
+        self,
+        campaign: Campaign,
+        company_name: str,
+        industry: str,
+        differentiator: str,
+        style: str,
+        count: int,
+    ) -> list[dict]:
+        count = max(1, min(count, 10))
+        messages = prompts.tagline_studio_messages(
+            campaign, company_name, industry, differentiator, style, count
+        )
+        _, wrapper = CONTENT_MODELS["tagline"]
+        result = self._complete("content:tagline", messages, wrapper, temperature=0.85)
+        return [item.model_dump() for item in result.variations[:count]]
+
+
     # ---- internals ---------------------------------------------------------------------
 
     def _get_client(self):

@@ -1,4 +1,4 @@
-import type { Asset, GenerateContentInput } from '../types/asset'
+import type { Asset, GenerateContentInput, GenerateTaglinesInput, SaveTaglineInput, Tagline } from '../types/asset'
 import type { Campaign, CampaignInput, CampaignSummary, Strategy } from '../types/campaign'
 import { json, request } from './client'
 
@@ -13,4 +13,9 @@ export const campaignApi = {
   listAssets: (id: number) => request<Asset[]>(`/campaigns/${id}/assets`),
   generateContent: (id: number, input: GenerateContentInput) =>
     request<Asset[]>(`/campaigns/${id}/generate-content`, json('POST', input)),
+  generateTaglines: (id: number, input: GenerateTaglinesInput) =>
+    request<Tagline[]>(`/campaigns/${id}/generate-taglines`, json('POST', input)),
+  saveTagline: (id: number, input: SaveTaglineInput) =>
+    request<Asset>(`/campaigns/${id}/taglines`, json('POST', input)),
 }
+
