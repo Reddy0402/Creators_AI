@@ -54,6 +54,12 @@ describe('request', () => {
     expect(error.message).toBe('Something went wrong (error 502).')
   })
 
+  it('detects proxy connection refused errors when backend is down', async () => {
+    mockFetch(new Response('Error: connect ECONNREFUSED 127.0.0.1:8000', { status: 500 }))
+    const error = (await request('/campaigns').catch((e) => e)) as ApiError
+    expect(error.message).toBe("Can't connect to the backend server. Make sure the backend is running on port 8000.")
+  })
+
   it('explains when the server cannot be reached', async () => {
     mockFetch(new TypeError('Failed to fetch'))
     const error = (await request('/campaigns').catch((e) => e)) as ApiError

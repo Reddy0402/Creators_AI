@@ -1,7 +1,9 @@
+from __future__ import annotations
+
 """Request and response schemas for the HTTP API."""
 
 from datetime import datetime, timezone
-from typing import Annotated, Literal
+from typing import Annotated, Literal, Optional
 
 from pydantic import AfterValidator, BaseModel, ConfigDict, Field, StringConstraints
 
@@ -50,15 +52,15 @@ class CampaignCreate(BaseModel):
 class CampaignUpdate(BaseModel):
     """PATCH body. Only the fields that are sent are changed."""
 
-    name: Required | None = Field(default=None, max_length=120)
-    product_or_service: Required | None = Field(default=None, max_length=200)
-    target_audience: Required | None = Field(default=None, max_length=300)
-    objective: Required | None = Field(default=None, max_length=300)
-    platform: Platform | None = None
-    tone: Required | None = Field(default=None, max_length=60)
-    brief: _limited(4000) | None = None
+    name: Optional[Required] = Field(default=None, max_length=120)
+    product_or_service: Optional[Required] = Field(default=None, max_length=200)
+    target_audience: Optional[Required] = Field(default=None, max_length=300)
+    objective: Optional[Required] = Field(default=None, max_length=300)
+    platform: Optional[Platform] = None
+    tone: Optional[Required] = Field(default=None, max_length=60)
+    brief: Optional[_limited(4000)] = None
     # Lets the user save edits to the generated strategy.
-    strategy: StrategyOut | None = None
+    strategy: Optional[StrategyOut] = None
 
 
 class CampaignOut(BaseModel):
@@ -72,7 +74,7 @@ class CampaignOut(BaseModel):
     platform: str
     tone: str
     brief: str
-    strategy: dict | None
+    strategy: Optional[dict] = None
     created_at: UTCDateTime
     updated_at: UTCDateTime
 
@@ -87,7 +89,7 @@ class CampaignSummary(BaseModel):
     has_strategy: bool
     asset_count: int
     # URL of the campaign's product image (or first visual), or null when it has none.
-    thumbnail_url: str | None = None
+    thumbnail_url: Optional[str] = None
     created_at: UTCDateTime
     updated_at: UTCDateTime
 
@@ -102,7 +104,7 @@ class AssetOut(BaseModel):
     title: str
     content: dict
     status: str
-    source_asset_id: int | None
+    source_asset_id: Optional[int] = None
     created_at: UTCDateTime
     updated_at: UTCDateTime
 
@@ -119,9 +121,9 @@ class VisualAssetOut(BaseModel):
     asset_type: str
     title: str
     source: str
-    prompt: str | None
-    provider: str | None
-    model: str | None
+    prompt: Optional[str] = None
+    provider: Optional[str] = None
+    model: Optional[str] = None
     mime_type: str
     width: int
     height: int
@@ -139,9 +141,9 @@ class GenerateImageRequest(BaseModel):
 
 
 class AssetUpdate(BaseModel):
-    title: Required | None = Field(default=None, max_length=200)
-    content: dict | None = None
-    status: AssetStatus | None = None
+    title: Optional[Required] = Field(default=None, max_length=200)
+    content: Optional[dict] = None
+    status: Optional[AssetStatus] = None
 
 
 class GenerateContentRequest(BaseModel):
@@ -154,4 +156,4 @@ class GenerateContentRequest(BaseModel):
 
 class RefineRequest(BaseModel):
     action: RefineAction
-    target_platform: Platform | None = None
+    target_platform: Optional[Platform] = None

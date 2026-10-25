@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 from datetime import datetime, timezone
+from typing import Optional
 
 from sqlalchemy import JSON, DateTime, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -22,7 +25,7 @@ class Campaign(Base):
     tone: Mapped[str] = mapped_column(String(60))
     brief: Mapped[str] = mapped_column(Text, default="")
     # Validated StrategyOut, stored as JSON. None until a strategy is generated.
-    strategy: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    strategy: Mapped[Optional[dict]] = mapped_column(JSON, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=utcnow, onupdate=utcnow
@@ -54,7 +57,7 @@ class CreativeAsset(Base):
     content: Mapped[dict] = mapped_column(JSON)
     status: Mapped[str] = mapped_column(String(20), default="draft")
     # Set when this asset came from "Explore another version" / refinement.
-    source_asset_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    source_asset_id: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=utcnow, onupdate=utcnow
@@ -76,9 +79,9 @@ class VisualAsset(Base):
     title: Mapped[str] = mapped_column(String(200))
     # "upload" or "generated"
     source: Mapped[str] = mapped_column(String(20))
-    prompt: Mapped[str | None] = mapped_column(Text, nullable=True)
-    provider: Mapped[str | None] = mapped_column(String(40), nullable=True)
-    model: Mapped[str | None] = mapped_column(String(80), nullable=True)
+    prompt: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    provider: Mapped[Optional[str]] = mapped_column(String(40), nullable=True)
+    model: Mapped[Optional[str]] = mapped_column(String(80), nullable=True)
     # Generated file name, e.g. "3f2a...c1.jpg". Never the client's file name.
     storage_key: Mapped[str] = mapped_column(String(80), unique=True)
     mime_type: Mapped[str] = mapped_column(String(40))

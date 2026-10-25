@@ -32,11 +32,20 @@ export async function request<T>(path: string, init: RequestInit = {}): Promise<
     let message = `Something went wrong (error ${response.status}).`
     let fields: Record<string, string> = {}
     try {
-      const body = await response.json()
-      if (typeof body.detail === 'string') message = body.detail
-      if (body.fields && typeof body.fields === 'object') fields = body.fields
+      const text = await response.text()
+      try {
+        const body = JSON.parse(text)
+        if (typeof body.detail === 'string') message = body.detail
+        else if (typeof body.message === 'string') message = body.message
+        if (body.fields && typeof body.fields === 'object') fields = body.fields
+      } catch {
+        // Body was not JSON. Check for dev server proxy connection errors.
+        if (text.includes('ECONNREFUSED') || text.includes('proxy error')) {
+          message = "Can't connect to the backend server. Make sure the backend is running on port 8000."
+        }
+      }
     } catch {
-      // The body wasn't JSON; keep the generic message.
+      // The body wasn't readable; keep the generic message.
     }
     throw new ApiError(response.status, message, fields)
   }

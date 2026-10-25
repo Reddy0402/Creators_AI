@@ -56,6 +56,14 @@ def create_app() -> FastAPI:
             status_code=422,
         )
 
+    @app.exception_handler(Exception)
+    async def _general_error(_: Request, exc: Exception):
+        logging.getLogger("creatoros").exception("Unhandled server error: %s", exc)
+        return JSONResponse(
+            {"detail": f"Server error: {str(exc) or type(exc).__name__}"},
+            status_code=500,
+        )
+
     app.include_router(campaigns.router, prefix="/api")
     app.include_router(assets.router, prefix="/api")
     app.include_router(images.router, prefix="/api")
