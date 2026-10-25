@@ -1,9 +1,23 @@
+import os
 from functools import lru_cache
 from pathlib import Path
 
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BACKEND_DIR = Path(__file__).resolve().parent.parent
+
+
+def _default_db_url() -> str:
+    if os.environ.get("VERCEL"):
+        return "sqlite:////tmp/creatoros.db"
+    return f"sqlite:///{(BACKEND_DIR / 'data' / 'creatoros.db').as_posix()}"
+
+
+def _default_upload_dir() -> Path:
+    if os.environ.get("VERCEL"):
+        return Path("/tmp/uploads")
+    return BACKEND_DIR / "data" / "uploads"
 
 
 class Settings(BaseSettings):
@@ -23,15 +37,15 @@ class Settings(BaseSettings):
     groq_json_mode: bool = True
 
     # Backend
-    database_url: str = f"sqlite:///{(BACKEND_DIR / 'data' / 'creatoros.db').as_posix()}"
-    frontend_origin: str = "http://localhost:5173"
+    database_url: str = Field(default_factory=_default_db_url)
+    frontend_origin: str = "*" if os.environ.get("VERCEL") else "http://localhost:5173"
 
     # Limits that keep cost and latency predictable
     max_variations: int = 3
     max_brief_chars: int = 4000
 
     # Image uploads and generated visuals are stored here, outside the database.
-    upload_dir: Path = BACKEND_DIR / "data" / "uploads"
+    upload_dir: Path = Field(default_factory=_default_upload_dir)
     max_upload_mb: int = 5
 
     # Image generation (separate from Groq, which only produces text).
