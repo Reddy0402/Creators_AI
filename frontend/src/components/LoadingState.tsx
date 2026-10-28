@@ -8,9 +8,11 @@ export function LoadingState({ label = 'Loading…' }: { label?: string }) {
   return (
     <div
       role="status"
-      className="flex flex-col items-center justify-center gap-3 py-16 text-sm text-zinc-400"
+      className="flex flex-col items-center justify-center gap-3 py-16 text-sm font-medium text-ink-soft"
     >
-      <Spinner className="size-6 text-accent" />
+      <span className="flex size-11 items-center justify-center rounded-none border-2 border-ink bg-surface shadow-brut-sm">
+        <Spinner className="size-5 text-ink" />
+      </span>
       {label}
     </div>
   )

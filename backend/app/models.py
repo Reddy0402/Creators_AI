@@ -26,6 +26,8 @@ class Campaign(Base):
     brief: Mapped[str] = mapped_column(Text, default="")
     # Validated StrategyOut, stored as JSON. None until a strategy is generated.
     strategy: Mapped[Optional[dict]] = mapped_column(JSON, nullable=True)
+    # "draft" | "active" | "completed". Defaults to draft; changed via PATCH.
+    status: Mapped[str] = mapped_column(String(20), default="draft", index=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=utcnow, onupdate=utcnow

@@ -31,48 +31,16 @@ interface TaglinesStudioProps {
   onNotify: (msg: string) => void
 }
 
-const STYLE_BADGES: Record<string, { label: string; color: string; border: string; bg: string }> = {
-  'Catchy & Punchy': {
-    label: 'Catchy & Punchy',
-    color: 'text-amber-300',
-    border: 'border-amber-500/30',
-    bg: 'bg-amber-500/10',
-  },
-  'Minimalist & Modern': {
-    label: 'Minimalist & Modern',
-    color: 'text-sky-300',
-    border: 'border-sky-500/30',
-    bg: 'bg-sky-500/10',
-  },
-  'Emotional & Inspiring': {
-    label: 'Emotional & Inspiring',
-    color: 'text-pink-300',
-    border: 'border-pink-500/30',
-    bg: 'bg-pink-500/10',
-  },
-  'Benefit-Driven': {
-    label: 'Benefit-Driven',
-    color: 'text-emerald-300',
-    border: 'border-emerald-500/30',
-    bg: 'bg-emerald-500/10',
-  },
-  'Playful & Clever': {
-    label: 'Playful & Clever',
-    color: 'text-purple-300',
-    border: 'border-purple-500/30',
-    bg: 'bg-purple-500/10',
-  },
+const STYLE_BADGES: Record<string, string> = {
+  'Catchy & Punchy': 'bg-coral-soft',
+  'Minimalist & Modern': 'bg-lav-soft',
+  'Emotional & Inspiring': 'bg-lime-soft',
+  'Benefit-Driven': 'bg-success-soft',
+  'Playful & Clever': 'bg-warning-soft',
 }
 
-function getStyleBadge(style: string) {
-  return (
-    STYLE_BADGES[style] ?? {
-      label: style || 'Custom',
-      color: 'text-indigo-300',
-      border: 'border-indigo-500/30',
-      bg: 'bg-indigo-500/10',
-    }
-  )
+function styleBadgeClass(style: string) {
+  return STYLE_BADGES[style] ?? 'bg-canvas'
 }
 
 export function TaglinesStudio({
@@ -226,20 +194,20 @@ export function TaglinesStudio({
   return (
     <div className="space-y-8">
       {/* Studio Header & Configuration Card */}
-      <section className="card p-6 space-y-6">
+      <section className="card space-y-6 p-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2">
-              <span className="flex size-7 items-center justify-center rounded-lg bg-accent/20 text-accent">
-                <Sparkles className="size-4" />
+            <div className="flex items-center gap-3">
+              <span className="flex size-9 items-center justify-center rounded-none border-2 border-ink bg-coral text-ink shadow-brut-xs">
+                <Sparkles className="size-5" aria-hidden />
               </span>
-              <h2 className="text-xl font-semibold tracking-tight text-zinc-50">
+              <h2 className="font-display text-xl font-bold tracking-tight text-ink">
                 Product Taglines & Brand Slogans Studio
               </h2>
             </div>
-            <p className="mt-1.5 text-sm text-zinc-400">
+            <p className="mt-2 text-sm text-ink-soft">
               Create memorable, high-converting taglines and brand slogans tailored to{' '}
-              <span className="text-zinc-200 font-medium">{campaign.product_or_service}</span>.
+              <span className="font-semibold text-ink">{campaign.product_or_service}</span>.
             </p>
           </div>
         </div>
@@ -284,7 +252,7 @@ export function TaglinesStudio({
 
         {/* Style Selection Chips */}
         <div className="space-y-2.5">
-          <label className="text-xs font-semibold tracking-wide text-zinc-400 uppercase">
+          <label className="text-xs font-bold tracking-wide text-ink-mute uppercase">
             Tagline Style
           </label>
           <div className="flex flex-wrap gap-2">
@@ -296,10 +264,11 @@ export function TaglinesStudio({
                   type="button"
                   onClick={() => setSelectedStyle(style)}
                   disabled={generating}
-                  className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-all ${
+                  aria-pressed={active}
+                  className={`cursor-pointer rounded-none border-2 border-ink px-3 py-1.5 text-xs font-bold transition-[transform,box-shadow] duration-100 disabled:cursor-not-allowed disabled:opacity-50 ${
                     active
-                      ? 'bg-accent text-white shadow-sm ring-1 ring-accent'
-                      : 'border border-line bg-raised text-zinc-300 hover:border-zinc-500 hover:text-zinc-100'
+                      ? 'bg-lime text-ink shadow-brut-xs'
+                      : 'bg-surface text-ink-soft hover:text-ink active:translate-x-[2px] active:translate-y-[2px]'
                   }`}
                 >
                   {style}
@@ -310,8 +279,8 @@ export function TaglinesStudio({
         </div>
 
         {/* Count & Action Button */}
-        <div className="flex flex-wrap items-center justify-between gap-4 border-t border-line pt-4">
-          <div className="flex items-center gap-3 text-sm text-zinc-400">
+        <div className="flex flex-wrap items-center justify-between gap-4 border-t-2 border-ink pt-4">
+          <div className="flex items-center gap-3 text-sm font-medium text-ink-soft">
             <span>Variations:</span>
             {[3, 5, 8].map((n) => (
               <button
@@ -319,10 +288,9 @@ export function TaglinesStudio({
                 type="button"
                 onClick={() => setCount(n)}
                 disabled={generating}
-                className={`size-8 rounded-md text-xs font-semibold transition-colors ${
-                  count === n
-                    ? 'bg-accent text-white'
-                    : 'border border-line bg-raised text-zinc-400 hover:text-zinc-100'
+                aria-pressed={count === n}
+                className={`size-9 cursor-pointer rounded-none border-2 border-ink text-xs font-bold transition-[transform,box-shadow] duration-100 disabled:cursor-not-allowed disabled:opacity-50 ${
+                  count === n ? 'bg-lime text-ink shadow-brut-xs' : 'bg-surface text-ink-soft'
                 }`}
               >
                 {n}
@@ -336,7 +304,7 @@ export function TaglinesStudio({
             onClick={handleGenerate}
             disabled={generating}
           >
-            {generating ? <Spinner /> : <Sparkles className="size-4" />}
+            {generating ? <Spinner /> : <Sparkles className="size-4" aria-hidden />}
             {generating ? 'Crafting Taglines…' : 'Generate Taglines'}
           </button>
         </div>
@@ -346,16 +314,17 @@ export function TaglinesStudio({
       {generatedList.length > 0 && (
         <section className="space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="text-base font-semibold text-zinc-100 flex items-center gap-2">
-              <Lightbulb className="size-4 text-amber-400" />
+            <h3 className="flex items-center gap-2 font-display text-base font-bold text-ink">
+              <span className="flex size-6 items-center justify-center rounded-none border-2 border-ink bg-lime text-ink shadow-brut-xs">
+                <Lightbulb className="size-3.5" aria-hidden />
+              </span>
               Generated Taglines ({generatedList.length})
             </h3>
-            <span className="text-xs text-zinc-400">Click a tagline to copy</span>
+            <span className="text-xs font-medium text-ink-mute">Click a tagline to copy</span>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
             {generatedList.map((item, idx) => {
-              const badge = getStyleBadge(item.style)
               const isCopied = copiedIndex === idx
               const isSaved =
                 savedKeys.has(item.tagline) ||
@@ -365,64 +334,65 @@ export function TaglinesStudio({
               return (
                 <div
                   key={idx}
-                  className="card group relative flex flex-col justify-between p-5 transition-all hover:border-zinc-500 hover:bg-[#16161f]"
+                  className="card group flex flex-col justify-between p-5"
                 >
                   <div className="space-y-3">
                     <div className="flex items-center justify-between gap-2">
-                      <span
-                        className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${badge.bg} ${badge.color} ${badge.border}`}
-                      >
-                        {badge.label}
+                      <span className={`chip ${styleBadgeClass(item.style)}`}>
+                        {item.style || 'Custom'}
                       </span>
 
                       <div className="flex items-center gap-1.5 opacity-90 transition-opacity group-hover:opacity-100">
                         <button
                           type="button"
                           onClick={() => copyToClipboard(item.tagline, idx)}
-                          className="btn-ghost p-1.5 text-xs"
+                          className="btn-ghost"
                           title="Copy tagline"
+                          aria-label="Copy tagline"
                         >
                           {isCopied ? (
-                            <Check className="size-4 text-emerald-400" />
+                            <Check className="size-4 text-success" aria-hidden />
                           ) : (
-                            <Copy className="size-4" />
+                            <Copy className="size-4" aria-hidden />
                           )}
                         </button>
                         <button
                           type="button"
                           onClick={() => handleSaveTagline(item)}
                           disabled={isSaved || isSaving}
-                          className={`btn-ghost p-1.5 text-xs ${
-                            isSaved ? 'text-amber-400' : 'text-zinc-400 hover:text-amber-300'
-                          }`}
+                          className="btn-ghost"
                           title={isSaved ? 'Saved to campaign' : 'Save to campaign'}
+                          aria-label={isSaved ? 'Saved to campaign' : 'Save to campaign'}
                         >
-                          <Star className={`size-4 ${isSaved ? 'fill-amber-400' : ''}`} />
+                          <Star
+                            className={`size-4 ${isSaved ? 'fill-coral text-coral' : ''}`}
+                            aria-hidden
+                          />
                         </button>
                       </div>
                     </div>
 
                     <blockquote
                       onClick={() => copyToClipboard(item.tagline, idx)}
-                      className="cursor-pointer text-lg font-semibold tracking-tight text-zinc-50 transition-colors hover:text-accent"
+                      className="cursor-pointer font-display text-lg font-bold tracking-tight text-ink"
                     >
                       “{item.tagline}”
                     </blockquote>
 
                     {item.rationale && (
-                      <p className="text-xs leading-relaxed text-zinc-400">
-                        <span className="font-medium text-zinc-300">Why it fits: </span>
+                      <p className="text-xs leading-relaxed text-ink-soft">
+                        <span className="font-semibold text-ink">Why it fits: </span>
                         {item.rationale}
                       </p>
                     )}
                   </div>
 
                   {item.keywords && item.keywords.length > 0 && (
-                    <div className="mt-4 flex flex-wrap gap-1.5 border-t border-line/60 pt-3">
+                    <div className="mt-4 flex flex-wrap gap-1.5 border-t-2 border-ink pt-3">
                       {item.keywords.map((kw, i) => (
                         <span
                           key={i}
-                          className="rounded-md bg-raised/80 px-2 py-0.5 text-[11px] font-medium text-zinc-400"
+                          className="rounded-none border-2 border-ink bg-canvas px-2 py-0.5 text-[11px] font-bold text-ink"
                         >
                           #{kw.replace(/^#/, '')}
                         </span>
@@ -438,13 +408,13 @@ export function TaglinesStudio({
 
       {/* Saved Campaign Taglines Gallery */}
       <section className="space-y-4">
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line pb-3">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b-2 border-ink pb-3">
           <div>
-            <h3 className="text-base font-semibold text-zinc-100 flex items-center gap-2">
-              <Star className="size-4 text-amber-400 fill-amber-400" />
+            <h3 className="flex items-center gap-2 font-display text-base font-bold text-ink">
+              <Star className="size-4 fill-coral text-coral" aria-hidden />
               Saved Campaign Taglines ({savedTaglines.length})
             </h3>
-            <p className="text-xs text-zinc-400">
+            <p className="mt-1 text-xs font-medium text-ink-mute">
               Approved taglines saved to this campaign that persist across sessions.
             </p>
           </div>
@@ -457,7 +427,7 @@ export function TaglinesStudio({
                 className="btn-secondary py-1 text-xs"
                 title="Copy all to clipboard"
               >
-                <Copy className="size-3.5" />
+                <Copy className="size-3.5" aria-hidden />
                 Copy all
               </button>
               <button
@@ -466,7 +436,7 @@ export function TaglinesStudio({
                 className="btn-secondary py-1 text-xs"
                 title="Download as TXT"
               >
-                <FileText className="size-3.5" />
+                <FileText className="size-3.5" aria-hidden />
                 TXT
               </button>
               <button
@@ -475,7 +445,7 @@ export function TaglinesStudio({
                 className="btn-secondary py-1 text-xs"
                 title="Download as CSV spreadsheet"
               >
-                <FileSpreadsheet className="size-3.5" />
+                <FileSpreadsheet className="size-3.5" aria-hidden />
                 CSV
               </button>
               <button
@@ -484,7 +454,7 @@ export function TaglinesStudio({
                 className="btn-secondary py-1 text-xs"
                 title="Download as JSON"
               >
-                <Download className="size-3.5" />
+                <Download className="size-3.5" aria-hidden />
                 JSON
               </button>
             </div>
@@ -492,10 +462,10 @@ export function TaglinesStudio({
         </div>
 
         {savedTaglines.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-line bg-surface/50 p-8 text-center">
-            <Sparkles className="mx-auto size-8 text-zinc-600" />
-            <h4 className="mt-2 text-sm font-medium text-zinc-300">No taglines saved yet</h4>
-            <p className="mt-1 text-xs text-zinc-500">
+          <div className="rounded-none border-2 border-dashed border-ink/40 bg-surface p-8 text-center">
+            <Sparkles className="mx-auto size-8 text-ink-mute" aria-hidden />
+            <h4 className="mt-2 text-sm font-bold text-ink">No taglines saved yet</h4>
+            <p className="mt-1 text-xs font-medium text-ink-mute">
               Click &quot;Generate Taglines&quot; above and star your favorites to save them to this campaign.
             </p>
           </div>
@@ -503,28 +473,23 @@ export function TaglinesStudio({
           <div className="grid gap-3 sm:grid-cols-2">
             {savedTaglines.map((asset) => {
               const c = asset.content as Tagline
-              const badge = getStyleBadge(c.style)
 
               return (
-                <div
-                  key={asset.id}
-                  className="card flex flex-col justify-between p-4 transition-all hover:border-zinc-500"
-                >
+                <div key={asset.id} className="card flex flex-col justify-between p-4">
                   <div className="space-y-2">
                     <div className="flex items-center justify-between gap-2">
-                      <span
-                        className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium ${badge.bg} ${badge.color} ${badge.border}`}
-                      >
-                        {badge.label}
+                      <span className={`chip ${styleBadgeClass(c.style)}`}>
+                        {c.style || 'Custom'}
                       </span>
                       <div className="flex items-center gap-1">
                         <button
                           type="button"
                           onClick={() => copyToClipboard(c.tagline)}
-                          className="btn-ghost p-1 text-xs text-zinc-400 hover:text-zinc-100"
+                          className="btn-ghost"
                           title="Copy tagline"
+                          aria-label="Copy tagline"
                         >
-                          <Copy className="size-3.5" />
+                          <Copy className="size-3.5" aria-hidden />
                         </button>
                         <button
                           type="button"
@@ -535,26 +500,27 @@ export function TaglinesStudio({
                               onNotify('Tagline removed')
                             }
                           }}
-                          className="btn-ghost p-1 text-xs text-zinc-500 hover:text-red-400"
+                          className="btn-ghost text-error"
                           title="Delete tagline"
+                          aria-label="Delete tagline"
                         >
-                          <Trash2 className="size-3.5" />
+                          <Trash2 className="size-3.5" aria-hidden />
                         </button>
                       </div>
                     </div>
 
-                    <p className="text-base font-semibold text-zinc-100">“{c.tagline}”</p>
+                    <p className="font-display text-base font-bold text-ink">“{c.tagline}”</p>
                     {c.rationale && (
-                      <p className="text-xs text-zinc-400 leading-relaxed">{c.rationale}</p>
+                      <p className="text-xs leading-relaxed text-ink-soft">{c.rationale}</p>
                     )}
                   </div>
 
                   {c.keywords && c.keywords.length > 0 && (
-                    <div className="mt-3 flex flex-wrap gap-1 border-t border-line/60 pt-2">
+                    <div className="mt-3 flex flex-wrap gap-1 border-t-2 border-ink pt-2">
                       {c.keywords.map((kw, i) => (
                         <span
                           key={i}
-                          className="rounded bg-raised px-1.5 py-0.5 text-[10px] text-zinc-400"
+                          className="rounded-none border-2 border-ink bg-canvas px-1.5 py-0.5 text-[10px] font-bold text-ink"
                         >
                           #{kw.replace(/^#/, '')}
                         </span>

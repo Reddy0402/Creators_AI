@@ -20,10 +20,10 @@ export function AssetView({ asset }: { asset: Asset }) {
       const c = asset.content as SocialPost
       return (
         <div className="space-y-3">
-          <p className="text-base font-semibold text-zinc-50">{c.headline}</p>
+          <p className="font-display text-base font-bold text-ink">{c.headline}</p>
           <Prose text={c.body} />
           <Row label="Call to action" text={c.call_to_action} />
-          {c.hashtags.length > 0 && <p className="text-sm text-accent">{c.hashtags.join(' ')}</p>}
+          {c.hashtags.length > 0 && <p className="text-sm font-medium text-ink">{c.hashtags.join(' ')}</p>}
         </div>
       )
     }
@@ -31,7 +31,7 @@ export function AssetView({ asset }: { asset: Asset }) {
       const c = asset.content as AdCopy
       return (
         <div className="space-y-3">
-          <p className="text-base font-semibold text-zinc-50">{c.headline}</p>
+          <p className="font-display text-base font-bold text-ink">{c.headline}</p>
           <Prose text={c.primary_text} />
           {c.description && <Row label="Description" text={c.description} />}
           <Row label="Call to action" text={c.call_to_action} />
@@ -53,23 +53,23 @@ export function AssetView({ asset }: { asset: Asset }) {
       const c = asset.content as VideoScript
       return (
         <div className="space-y-4">
-          <p className="text-base font-semibold text-zinc-50">{c.concept}</p>
+          <p className="font-display text-base font-bold text-ink">{c.concept}</p>
           <Row label="Opening hook" text={c.hook} />
           <ol className="space-y-2">
             {c.scenes.map((scene) => (
-              <li key={scene.order} className="rounded-lg border border-line bg-raised p-3 text-sm">
-                <p className="text-xs font-semibold text-zinc-500">
+              <li key={scene.order} className="rounded-none border-2 border-ink bg-canvas p-3 text-sm">
+                <p className="text-xs font-bold text-ink-mute">
                   Scene {scene.order} · {scene.duration_seconds}s
                 </p>
-                <p className="mt-1 text-zinc-200">{scene.visual}</p>
+                <p className="mt-1 text-ink-soft">{scene.visual}</p>
                 {scene.voiceover && (
-                  <p className="mt-1 text-zinc-400 italic">“{scene.voiceover}”</p>
+                  <p className="mt-1 text-ink-soft italic">“{scene.voiceover}”</p>
                 )}
               </li>
             ))}
           </ol>
           <Row label="Closing call to action" text={c.closing_call_to_action} />
-          <p className="text-xs text-zinc-500">
+          <p className="text-xs font-medium text-ink-mute">
             Estimated duration: {c.estimated_duration_seconds}s
           </p>
         </div>
@@ -79,7 +79,7 @@ export function AssetView({ asset }: { asset: Asset }) {
       const c = asset.content as Tagline
       return (
         <div className="space-y-3">
-          <blockquote className="border-l-2 border-accent pl-3 text-lg font-semibold tracking-tight text-zinc-50 italic">
+          <blockquote className="border-l-4 border-lime pl-3 text-lg font-semibold tracking-tight text-ink italic">
             “{c.tagline}”
           </blockquote>
           {c.style && <Row label="Style" text={c.style} />}
@@ -89,7 +89,7 @@ export function AssetView({ asset }: { asset: Asset }) {
               {c.keywords.map((kw, i) => (
                 <span
                   key={i}
-                  className="rounded-full border border-line bg-raised px-2.5 py-0.5 text-xs font-medium text-zinc-300"
+                  className="rounded-none border-2 border-ink bg-canvas px-2.5 py-0.5 text-xs font-medium text-ink"
                 >
                   #{kw.replace(/^#/, '')}
                 </span>
@@ -103,13 +103,13 @@ export function AssetView({ asset }: { asset: Asset }) {
 }
 
 function Prose({ text }: { text: string }) {
-  return <p className="text-sm leading-relaxed whitespace-pre-wrap text-zinc-300">{text}</p>
+  return <p className="text-sm leading-relaxed whitespace-pre-wrap text-ink-soft">{text}</p>
 }
 
 function Row({ label, text }: { label: string; text: string }) {
   return (
-    <p className="text-sm text-zinc-300">
-      <span className="mr-2 text-xs font-semibold tracking-wide text-zinc-500 uppercase">
+    <p className="text-sm text-ink-soft">
+      <span className="mr-2 text-xs font-bold tracking-wide text-ink-mute uppercase">
         {label}
       </span>
       {text}
@@ -248,14 +248,14 @@ function ScenesEditor({
 
   return (
     <fieldset className="space-y-3">
-      <legend className="mb-1 text-sm font-medium text-zinc-300">Scenes</legend>
+      <legend className="mb-1 text-sm font-semibold text-ink">Scenes</legend>
       {scenes.map((scene, index) => (
-        <div key={index} className="space-y-2 rounded-lg border border-line bg-raised p-3">
+        <div key={index} className="space-y-2 rounded-none border-2 border-ink bg-canvas p-3">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-zinc-500">Scene {scene.order}</span>
+            <span className="text-xs font-bold text-ink-mute">Scene {scene.order}</span>
             <button
               type="button"
-              className="text-zinc-500 hover:text-red-400 disabled:opacity-40"
+              className="cursor-pointer text-ink-mute hover:text-error disabled:opacity-40"
               aria-label={`Remove scene ${scene.order}`}
               disabled={scenes.length === 1}
               onClick={() => onChange(renumber(scenes.filter((_, i) => i !== index)))}
@@ -279,7 +279,7 @@ function ScenesEditor({
             value={scene.voiceover}
             onChange={(e) => patch(index, { voiceover: e.target.value })}
           />
-          <label className="flex items-center gap-2 text-xs text-zinc-500">
+          <label className="flex items-center gap-2 text-xs font-medium text-ink-soft">
             Duration (s)
             <input
               type="number"

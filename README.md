@@ -2,11 +2,12 @@
 
 A campaign studio for marketing teams. Enter a brief, generate a campaign strategy with
 Groq, then create social posts, ad copy, video scripts and emails that follow that strategy.
-Everything you create is saved to SQLite and survives backend restarts.
+Everything you create is saved to PostgreSQL and survives backend restarts and browser refreshes.
 
 - **Frontend:** React, Vite, TypeScript, Tailwind CSS, React Router, Lucide icons
 - **Backend:** FastAPI, SQLAlchemy, Pydantic, official Groq Python SDK
-- **Database:** SQLite (created automatically on first start)
+- **Database:** PostgreSQL (local or serverless, e.g. Neon). A local SQLite file is still
+  used as a fallback when `DATABASE_URL` is unset, for quick throwaway demos.
 
 ## Setup
 
@@ -22,7 +23,18 @@ pip install -r requirements.txt
 copy .env.example .env          # macOS/Linux: cp .env.example .env
 ```
 
-Open `backend/.env` and set `GROQ_API_KEY` to your key from https://console.groq.com/keys.
+Open `backend/.env` and set:
+
+- `GROQ_API_KEY` to your key from https://console.groq.com/keys.
+- `DATABASE_URL` to your PostgreSQL connection string. This is what makes campaigns
+  persistent. Examples:
+  - **Local PostgreSQL:** `postgresql+psycopg://postgres:YOUR_PASSWORD@localhost:5432/creatoros`
+  - **Neon (serverless):** `postgresql+psycopg://USER:PASSWORD@HOST/neondb?sslmode=require`
+    (use Neon's *pooled* connection string, which ends in `-pooler`.)
+
+  Without `DATABASE_URL` the app falls back to a local SQLite file — fine for a demo, but
+  data is lost if that file is removed. Prefer PostgreSQL.
+
 Then start the API:
 
 ```bash
@@ -30,7 +42,11 @@ uvicorn app.main:app --reload --port 8000
 ```
 
 - API docs: http://localhost:8000/docs
-- Health check: http://localhost:8000/api/health
+- Health check: http://localhost:8000/api/health — also reports `db_ok` and `database`.
+
+If the database can't be reached the API still boots, but `/api/health` shows
+`"db_ok": false`, the dashboard shows a warning banner, and data requests return an
+actionable 503 explaining what to fix.
 
 ### 2. Frontend
 
@@ -57,7 +73,7 @@ Backend (`backend/.env`):
 | `GROQ_TIMEOUT_SECONDS` | `45` | Per-request timeout. |
 | `GROQ_MAX_RETRIES` | `2` | Retries for rate limits, timeouts and 5xx errors only. |
 | `GROQ_MAX_OUTPUT_TOKENS` | `3000` | Output cap per request. |
-| `DATABASE_URL` | `sqlite:///backend/data/creatoros.db` | Database location. |
+| `DATABASE_URL` | *(local SQLite fallback)* | PostgreSQL connection string, e.g. `postgresql+psycopg://user:pass@host:5432/db`. Required for persistent storage. |
 | `FRONTEND_ORIGIN` | `http://localhost:5173` | Allowed CORS origin. |
 | `MAX_VARIATIONS` | `3` | Upper limit on variations per request. |
 | `IMAGE_PROVIDER` | `huggingface` | `huggingface` (FLUX Space, uses `HF_TOKEN`) or `pollinations` (uses `IMAGE_API_KEY`). |
@@ -76,9 +92,54 @@ The API key is only read by the backend and is never returned in responses or lo
 
 ## Database
 
-Tables are created on backend startup (`Base.metadata.create_all`). There are no migrations yet.
-To reset all data, stop the backend and delete `backend/data/creatoros.db`.
-Data survives normal restarts because the file stays on disk.
+The app uses **PostgreSQL** when `DATABASE_URL` is set (see the backend environment
+variables above). Set it to your local PostgreSQL or a serverless provider such as Neon
+(use the **pooled** connection string, which ends in `-pooler`, and include
+`?sslmode=require`).
+
+On startup the backend verifies the connection and then:
+
+- creates any missing tables (`Base.metadata.create_all`), and
+- additively adds any model columns that are missing on an older database.
+
+Both steps are **non-destructive** — existing rows are never dropped or rewritten. If the
+database can't be reached, the app still boots; `/api/health` reports `"db_ok": false`, the
+dashboard shows a warning banner, and data requests return an actionable 503.
+
+### Migrations (Alembic)
+
+Schema changes are managed with Alembic so teams can apply them explicitly in shared and
+production environments.
+
+```bash
+cd backend
+
+# Apply all migrations to the database in DATABASE_URL.
+.venv\Scripts\python -m alembic upgrade head          # macOS/Linux: python -m alembic upgrade head
+
+# After changing app/models.py, generate a new migration:
+.venv\Scripts\python -m alembic revision --autogenerate -m "describe the change"
+.venv\Scripts\python -m alembic upgrade head
+
+# Inspect without changing anything:
+.venv\Scripts\python -m alembic current
+.venv\Scripts\python -m alembic upgrade head --sql    # print the SQL, don't run it
+```
+
+`alembic/env.py` reads the same `DATABASE_URL` as the app (from `backend/.env`), so no
+credentials are stored in `alembic.ini`. The initial migration (`alembic/versions/0001_*`)
+creates the `campaigns`, `creative_assets`, and `visual_assets` tables.
+
+> The startup auto-creation above is the convenience path for local development and for
+> a brand-new database. For a shared/production database you own, prefer `alembic upgrade
+> head` so schema changes are explicit and reviewable. The two approaches keep the same
+> target schema.
+
+### Resetting local data
+
+- **PostgreSQL:** delete the rows (e.g. `TRUNCATE creative_assets, visual_assets, campaigns RESTART IDENTITY CASCADE;`)
+  — never drop the database to fix a problem.
+- **SQLite fallback:** stop the backend and delete `backend/data/creatoros.db`.
 
 ## API overview
 
@@ -108,9 +169,14 @@ Errors come back as `{"detail": "message"}`. Validation errors also include a `f
 
 ```bash
 cd backend
-.venv\Scripts\python -m pytest             # 49 tests, Groq is mocked, no key needed
-.venv\Scripts\python -m pytest -m live -s  # real Groq calls, needs GROQ_API_KEY, uses a little quota
+.venv\Scripts\python -m pytest             # mocked suite, no key or live DB needed
+.venv\Scripts\python -m pytest -m live -s  # real Groq calls (GROQ_API_KEY) and real DB tests (DATABASE_URL)
 ```
+
+The `live` tests include PostgreSQL CRUD/persistence checks in
+`tests/test_postgres_live.py`. They run against the real database in `DATABASE_URL`
+and only touch rows they create. With no `DATABASE_URL` (or a non-PostgreSQL one)
+those specific tests skip, so a plain `pytest` never requires a live database.
 
 ```bash
 cd frontend

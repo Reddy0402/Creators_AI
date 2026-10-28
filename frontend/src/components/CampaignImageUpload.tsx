@@ -1,4 +1,4 @@
-import { ImagePlus, X } from 'lucide-react'
+import { AlertCircle, ImagePlus, X } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState, type DragEvent } from 'react'
 import { formatFileSize, validateImageFile } from '../lib/imageFile'
 
@@ -44,7 +44,7 @@ export function CampaignImageUpload({ file, onChange, disabled = false, id = 'im
   if (file && previewUrl) {
     return (
       <div className="space-y-2">
-        <div className="relative overflow-hidden rounded-lg border border-line bg-raised">
+        <div className="relative overflow-hidden rounded-none border-2 border-ink bg-canvas shadow-brut-xs">
           <img
             src={previewUrl}
             alt={`Preview of ${file.name}`}
@@ -55,15 +55,20 @@ export function CampaignImageUpload({ file, onChange, disabled = false, id = 'im
             onClick={clear}
             disabled={disabled}
             aria-label="Remove selected image"
-            className="absolute top-2 right-2 rounded-full bg-black/70 p-1.5 text-white hover:bg-black disabled:opacity-50"
+            className="absolute top-2 right-2 flex size-9 cursor-pointer items-center justify-center rounded-none border-2 border-ink bg-surface text-ink shadow-brut-xs transition-colors hover:bg-coral-soft disabled:opacity-50"
           >
             <X className="size-4" aria-hidden />
           </button>
         </div>
-        <p className="text-xs text-zinc-500">
+        <p className="text-xs font-medium text-ink-mute">
           {file.name} · {formatFileSize(file.size)}
         </p>
-        {error && <p role="alert" className="text-xs text-red-400">{error}</p>}
+        {error && (
+          <p role="alert" className="flex items-center gap-1.5 text-xs font-semibold text-error">
+            <AlertCircle className="size-3.5 shrink-0" aria-hidden />
+            {error}
+          </p>
+        )}
       </div>
     )
   }
@@ -77,21 +82,30 @@ export function CampaignImageUpload({ file, onChange, disabled = false, id = 'im
         }}
         onDragLeave={() => setDragging(false)}
         onDrop={handleDrop}
-        className={`flex flex-col items-center gap-2 rounded-lg border border-dashed px-4 py-8 text-center transition-colors ${
-          dragging ? 'border-accent bg-accent/10' : 'border-line bg-canvas'
+        aria-dropeffect={!disabled ? 'copy' : undefined}
+        className={`flex flex-col items-center gap-3 rounded-none border-2 border-dashed px-4 py-6 text-center transition-colors sm:py-10 ${
+          dragging
+            ? 'border-ink bg-lime-soft shadow-brut-sm'
+            : 'border-ink/50 bg-canvas'
         }`}
       >
-        <ImagePlus className="size-6 text-zinc-500" aria-hidden />
-        <p className="text-sm text-zinc-300">Drag an image here, or</p>
+        <span
+          className={`flex size-12 items-center justify-center rounded-none border-2 border-ink shadow-brut-xs ${
+            dragging ? 'bg-lime text-ink' : 'bg-surface text-ink-soft'
+          }`}
+        >
+          <ImagePlus className="size-6" aria-hidden />
+        </span>
+        <p className="text-sm font-semibold text-ink">{dragging ? 'Drop it here' : 'Drag an image here, or'}</p>
         <button
           type="button"
-          className="btn-secondary text-xs"
+          className="btn-secondary"
           disabled={disabled}
           onClick={() => inputRef.current?.click()}
         >
           Choose a file
         </button>
-        <p className="text-xs text-zinc-500">JPEG, PNG or WebP · up to 5 MB</p>
+        <p className="text-xs text-ink-mute">JPEG, PNG or WebP · up to 5 MB</p>
         <input
           ref={inputRef}
           id={id}
@@ -103,7 +117,12 @@ export function CampaignImageUpload({ file, onChange, disabled = false, id = 'im
           onChange={(event) => choose(event.target.files?.[0])}
         />
       </div>
-      {error && <p role="alert" className="text-xs text-red-400">{error}</p>}
+      {error && (
+        <p role="alert" className="flex items-center gap-1.5 text-xs font-semibold text-error">
+          <AlertCircle className="size-3.5 shrink-0" aria-hidden />
+          {error}
+        </p>
+      )}
     </div>
   )
 }

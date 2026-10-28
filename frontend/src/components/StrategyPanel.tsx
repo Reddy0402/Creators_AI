@@ -106,7 +106,7 @@ export function StrategyPanel({ campaign, onCampaignChange, onSaved, onDirtyChan
   return (
     <section aria-labelledby="strategy-heading" className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 id="strategy-heading" className="text-lg font-semibold text-zinc-100">
+        <h2 id="strategy-heading" className="font-display text-lg font-bold text-ink">
           Campaign strategy
         </h2>
         <div className="flex gap-2">
@@ -180,11 +180,11 @@ function StrategyView({ strategy }: { strategy: Strategy }) {
 
       <div>
         <Label>Creative concepts</Label>
-        <div className="mt-2 grid gap-3 md:grid-cols-3">
+        <div className="mt-3 grid gap-3 md:grid-cols-3">
           {strategy.concepts.map((concept, index) => (
-            <div key={index} className="rounded-lg border border-line bg-raised p-4">
-              <p className="text-sm font-medium text-zinc-100">{concept.name}</p>
-              <p className="mt-1 text-sm text-zinc-400">{concept.description}</p>
+            <div key={index} className="rounded-none border-2 border-ink bg-canvas p-4">
+              <p className="text-sm font-bold text-ink">{concept.name}</p>
+              <p className="mt-1 text-sm text-ink-soft">{concept.description}</p>
             </div>
           ))}
         </div>
@@ -196,9 +196,9 @@ function StrategyView({ strategy }: { strategy: Strategy }) {
       </div>
 
       {strategy.assumptions.length > 0 && (
-        <div className="rounded-lg border border-amber-500/25 bg-amber-500/5 p-4">
+        <div className="rounded-none border-2 border-ink bg-warning-soft p-4">
           <Label>Assumptions to check</Label>
-          <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-amber-100/80">
+          <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-ink">
             {strategy.assumptions.map((item, index) => (
               <li key={index}>{item}</li>
             ))}
@@ -250,7 +250,7 @@ function StrategyForm({
       <div className="space-y-3">
         <Label>Creative concepts</Label>
         {draft.concepts.map((concept, index) => (
-          <div key={index} className="space-y-2 rounded-lg border border-line bg-raised p-3">
+          <div key={index} className="space-y-2 rounded-none border-2 border-ink bg-canvas p-3">
             <input
               aria-label={`Concept ${index + 1} name`}
               className="field"
@@ -290,14 +290,16 @@ function StrategyForm({
 }
 
 function Label({ children }: { children: string }) {
-  return <p className="text-xs font-semibold tracking-wide text-zinc-500 uppercase">{children}</p>
+  return (
+    <p className="text-xs font-bold tracking-wide text-ink-mute uppercase">{children}</p>
+  )
 }
 
 function Block({ label, text }: { label: string; text: string }) {
   return (
     <div>
       <Label>{label}</Label>
-      <p className="mt-1 text-sm leading-relaxed text-zinc-200">{text}</p>
+      <p className="mt-1 text-sm leading-relaxed text-ink-soft">{text}</p>
     </div>
   )
 }
@@ -308,7 +310,7 @@ function Pills({ label, items }: { label: string; items: string[] }) {
       <Label>{label}</Label>
       <div className="mt-2 flex flex-wrap gap-2">
         {items.map((item, index) => (
-          <span key={index} className="rounded-full bg-raised px-3 py-1 text-sm text-zinc-300">
+          <span key={index} className="chip bg-canvas">
             {item}
           </span>
         ))}

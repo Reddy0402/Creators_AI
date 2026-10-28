@@ -36,6 +36,8 @@ export interface Strategy {
   assumptions: string[]
 }
 
+export type CampaignStatus = 'draft' | 'active' | 'completed'
+
 export interface CampaignInput {
   name: string
   product_or_service: string
@@ -49,6 +51,7 @@ export interface CampaignInput {
 export interface Campaign extends CampaignInput {
   id: number
   strategy: Strategy | null
+  status: CampaignStatus
   created_at: string
   updated_at: string
 }
@@ -60,6 +63,7 @@ export interface CampaignSummary {
   platform: string
   has_strategy: boolean
   asset_count: number
+  status: CampaignStatus
   thumbnail_url: string | null
   created_at: string
   updated_at: string

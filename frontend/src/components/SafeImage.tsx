@@ -19,7 +19,7 @@ export function SafeImage({ src, alt, className = '', loading = 'lazy', fallback
       <div
         role="img"
         aria-label={`${alt} (image unavailable)`}
-        className={`flex size-full flex-col items-center justify-center gap-2 bg-raised px-4 text-center text-xs text-zinc-500 ${className}`}
+        className={`flex size-full flex-col items-center justify-center gap-2 bg-canvas px-4 text-center text-xs font-medium text-ink-mute ${className}`}
       >
         <ImageOff className="size-6" aria-hidden />
         <span>{fallbackText ?? 'Image unavailable'}</span>

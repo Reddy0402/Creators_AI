@@ -31,6 +31,60 @@ def test_saved_data_survives_a_new_engine(tmp_path):
     second.dispose()
 
 
+def test_existing_database_gains_new_columns_on_startup(tmp_path):
+    """A database created by an older version keeps its rows when a new column is added."""
+    import sqlalchemy as sa
+    from sqlalchemy import text
+
+    url = f"sqlite:///{(tmp_path / 'old.db').as_posix()}"
+    old_engine = make_engine(url)
+
+    # The campaigns table as an older version of the app would have created it
+    # (no 'status' column), with one row already in it.
+    with old_engine.begin() as conn:
+        conn.execute(
+            sa.text(
+                """
+                CREATE TABLE campaigns (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    name VARCHAR(120) NOT NULL,
+                    product_or_service VARCHAR(200) NOT NULL,
+                    target_audience VARCHAR(300) NOT NULL,
+                    objective VARCHAR(300) NOT NULL,
+                    platform VARCHAR(40) NOT NULL,
+                    tone VARCHAR(60) NOT NULL,
+                    brief TEXT NOT NULL,
+                    strategy JSON,
+                    created_at DATETIME NOT NULL,
+                    updated_at DATETIME NOT NULL
+                )
+                """
+            )
+        )
+        conn.execute(
+            sa.text(
+                "INSERT INTO campaigns (name, product_or_service, target_audience, objective,"
+                " platform, tone, brief, strategy, created_at, updated_at)"
+                " VALUES ('Legacy', 'Old product', 'Everyone', 'Sell', 'Email', 'Calm', '',"
+                " NULL, '2026-01-01 10:00:00', '2026-01-01 10:00:00')"
+            )
+        )
+    old_engine.dispose()
+
+    # The app "starts up" against the old database.
+    new_engine = make_engine(url)
+    from app.database import _ensure_schema
+
+    _ensure_schema(new_engine)
+
+    with new_engine.begin() as conn:
+        cols = {row[1] for row in conn.execute(text("PRAGMA table_info(campaigns)"))}
+        assert "status" in cols
+        row = conn.execute(text("SELECT name, status FROM campaigns")).fetchone()
+        assert row == ("Legacy", "draft")
+    new_engine.dispose()
+
+
 def test_deleting_a_campaign_cascades_in_the_database(tmp_path):
     engine = make_engine(f"sqlite:///{(tmp_path / 'cascade.db').as_posix()}")
     Base.metadata.create_all(engine)

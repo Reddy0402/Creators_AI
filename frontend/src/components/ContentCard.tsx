@@ -129,21 +129,19 @@ export function ContentCard({
   return (
     <article className="card space-y-4 p-5" aria-label={asset.title}>
       <header className="flex flex-wrap items-center gap-2 text-xs">
-        <span className="rounded-full bg-accent/15 px-2.5 py-0.5 font-medium text-accent">
-          {contentTypeLabel(asset.content_type)}
-        </span>
-        <span className="rounded-full bg-raised px-2.5 py-0.5 text-zinc-300">{asset.platform}</span>
+        <span className="chip bg-lime-soft">{contentTypeLabel(asset.content_type)}</span>
+        <span className="chip bg-canvas">{asset.platform}</span>
         {approved && (
-          <span className="flex items-center gap-1 rounded-full bg-emerald-500/15 px-2.5 py-0.5 font-medium text-emerald-300">
+          <span className="chip gap-1 bg-success-soft">
             <CheckCircle2 className="size-3" aria-hidden /> Approved
           </span>
         )}
         {asset.source_asset_id !== null && (
-          <span className="flex items-center gap-1 text-zinc-500">
+          <span className="flex items-center gap-1 font-medium text-ink-mute">
             <Sparkles className="size-3" aria-hidden /> Revised version
           </span>
         )}
-        <span className="ml-auto text-zinc-500">{formatDate(asset.updated_at)}</span>
+        <span className="ml-auto font-medium text-ink-mute">{formatDate(asset.updated_at)}</span>
       </header>
 
       {draft ? (
@@ -155,9 +153,9 @@ export function ContentCard({
       {error && <ErrorMessage message={error} />}
 
       {refineOpen && !editing && (
-        <div className="space-y-3 rounded-lg border border-line bg-raised p-3">
+        <div className="space-y-3 rounded-none border-2 border-ink bg-canvas p-3">
           <div className="flex flex-wrap items-end gap-3">
-            <label className="space-y-1 text-xs text-zinc-400">
+            <label className="space-y-1 text-xs font-semibold text-ink-soft">
               Change
               <select
                 className="field"
@@ -172,7 +170,7 @@ export function ContentCard({
               </select>
             </label>
             {action === 'adapt_platform' && (
-              <label className="space-y-1 text-xs text-zinc-400">
+              <label className="space-y-1 text-xs font-semibold text-ink-soft">
                 Platform
                 <select
                   className="field"
@@ -190,13 +188,13 @@ export function ContentCard({
               {working === 'refine' ? 'Revising…' : 'Create revised version'}
             </button>
           </div>
-          <p className="text-xs text-zinc-500">
+          <p className="text-xs text-ink-mute">
             Your current content stays as it is. The revision is saved as a new item.
           </p>
         </div>
       )}
 
-      <footer className="flex flex-wrap gap-2 border-t border-line pt-4">
+      <footer className="flex flex-wrap gap-2 border-t-2 border-ink pt-4">
         {editing ? (
           <>
             <button className="btn-primary" onClick={save} disabled={busy || !dirty}>
@@ -221,7 +219,7 @@ export function ContentCard({
               <Pencil className="size-4" aria-hidden /> Edit
             </button>
             <button className="btn-secondary" onClick={copy} disabled={busy}>
-              {copied ? <Check className="size-4 text-emerald-400" aria-hidden /> : <Copy className="size-4" aria-hidden />}
+              {copied ? <Check className="size-4 text-success" aria-hidden /> : <Copy className="size-4" aria-hidden />}
               {copied ? 'Copied' : 'Copy'}
             </button>
             <button className="btn-secondary" onClick={explore} disabled={busy}>
@@ -240,7 +238,7 @@ export function ContentCard({
               {working === 'status' ? <Spinner /> : <CheckCircle2 className="size-4" aria-hidden />}
               {approved ? 'Unapprove' : 'Approve'}
             </button>
-            <button className="btn-ghost ml-auto" onClick={remove} disabled={busy} aria-label="Delete content">
+            <button className="btn-ghost ml-auto text-error" onClick={remove} disabled={busy} aria-label="Delete content">
               {working === 'delete' ? <Spinner /> : <Trash2 className="size-4" aria-hidden />}
             </button>
           </>

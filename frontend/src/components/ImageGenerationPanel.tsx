@@ -36,12 +36,14 @@ export function ImageGenerationPanel({ ready, generating, error, onGenerate }: P
       }}
     >
       <div className="flex items-center gap-2">
-        <Sparkles className="size-4 text-accent" aria-hidden />
-        <h3 className="font-medium text-zinc-100">Generate a visual</h3>
+        <span className="flex size-7 items-center justify-center rounded-none border-2 border-ink bg-lime text-ink shadow-brut-xs">
+          <Sparkles className="size-4" aria-hidden />
+        </span>
+        <h3 className="font-display text-base font-bold text-ink">Generate a visual</h3>
       </div>
 
       {ready === false && (
-        <p className="rounded-lg border border-line bg-raised px-3 py-2 text-xs text-zinc-400">
+        <p className="rounded-none border-2 border-ink bg-canvas px-3 py-2 text-xs font-medium text-ink-soft">
           Image generation isn't set up yet. Add the provider key to <code>backend/.env</code> and
           restart the backend, or upload your own image.
         </p>
@@ -110,7 +112,7 @@ export function ImageGenerationPanel({ ready, generating, error, onGenerate }: P
       {error && <ErrorMessage message={error} />}
 
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="text-xs text-zinc-500">
+        <p className="text-xs text-ink-mute">
           Generated images are illustrations. They aren't photos of your product.
         </p>
         <button type="submit" className="btn-primary" disabled={generating || ready !== true}>

@@ -25,11 +25,11 @@ export function ImagePreviewDialog({ visual, onClose }: Props) {
       role="dialog"
       aria-modal="true"
       aria-label={`${visual.title} preview`}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-ink/80 p-4"
       onClick={onClose}
     >
       <div className="w-full max-w-4xl" onClick={(event) => event.stopPropagation()}>
-        <div className="flex max-h-[80vh] items-center justify-center overflow-hidden rounded-xl bg-canvas">
+        <div className="flex max-h-[80vh] items-center justify-center overflow-hidden rounded-none border-2 border-ink bg-surface shadow-brut">
           <SafeImage
             src={visual.url}
             alt={`${visual.title}, ${visualTypeLabel(visual.asset_type).toLowerCase()}`}
@@ -37,10 +37,10 @@ export function ImagePreviewDialog({ visual, onClose }: Props) {
             className="max-h-[80vh] w-auto max-w-full object-contain"
           />
         </div>
-        <div className="mt-3 flex flex-wrap items-center justify-between gap-3 text-sm text-zinc-300">
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-3 text-sm text-ink-soft">
           <div>
-            <p className="font-medium text-zinc-100">{visual.title}</p>
-            <p className="text-xs text-zinc-500">
+            <p className="font-display font-bold text-ink">{visual.title}</p>
+            <p className="text-xs font-medium text-ink-mute">
               {visualTypeLabel(visual.asset_type)} · {visual.width}×{visual.height}
               {visual.source === 'generated' && ' · AI illustration, not a product photograph'}
             </p>

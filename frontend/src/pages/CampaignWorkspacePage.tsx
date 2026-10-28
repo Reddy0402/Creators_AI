@@ -184,6 +184,16 @@ export function CampaignWorkspacePage() {
 
   if (!campaign) return <LoadingState label="Opening your campaign…" />
 
+  const copyCount = assets.filter((a) => a.content_type !== 'tagline').length
+  const taglineCount = assets.filter((a) => a.content_type === 'tagline').length
+
+  const tabs: { key: WorkspaceTab; label: string; icon: typeof FileText; count?: number }[] = [
+    { key: 'content', label: 'Marketing Copy', icon: FileText, count: copyCount },
+    { key: 'taglines', label: 'Taglines & Slogans', icon: Sparkles, count: taglineCount },
+    { key: 'visuals', label: 'Visual Assets', icon: ImageIcon, count: visuals.length },
+    { key: 'strategy', label: 'Strategy & Brief', icon: Compass },
+  ]
+
   return (
     <div className="space-y-10">
       <header className="space-y-3">
@@ -193,18 +203,24 @@ export function CampaignWorkspacePage() {
           <div className="min-w-0 flex-1 space-y-3">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div>
-                <h1 className="text-2xl font-semibold tracking-tight text-zinc-50">{campaign.name}</h1>
-                <p className="mt-1 text-sm text-zinc-400">
+                <h1 className="font-display text-3xl font-bold tracking-tight text-ink">
+                  {campaign.name}
+                </h1>
+                <p className="mt-2 text-sm font-medium text-ink-soft">
                   {campaign.product_or_service} · {campaign.platform} · {campaign.tone} tone
                 </p>
               </div>
-              <button className="btn-ghost" onClick={deleteCampaign} disabled={deleting}>
+              <button
+                className="btn-secondary text-error"
+                onClick={deleteCampaign}
+                disabled={deleting}
+              >
                 <Trash2 className="size-4" aria-hidden /> Delete campaign
               </button>
             </div>
           </div>
           {hero && (
-            <div className="aspect-square w-full overflow-hidden rounded-xl border border-line bg-raised sm:w-44">
+            <div className="aspect-square w-full overflow-hidden rounded-none border-2 border-ink bg-canvas shadow-brut sm:w-44">
               <SafeImage
                 src={hero.url}
                 alt={`${campaign.name} product image`}
@@ -214,9 +230,12 @@ export function CampaignWorkspacePage() {
             </div>
           )}
         </div>
-        <details className="card p-4 text-sm">
-          <summary className="cursor-pointer font-medium text-zinc-300">Campaign brief</summary>
-          <dl className="mt-3 grid gap-3 text-zinc-400 md:grid-cols-2">
+        <details className="card group p-4 text-sm">
+          <summary className="cursor-pointer font-semibold text-ink select-none">
+            <span className="mr-2 inline-block transition-transform group-open:rotate-90">▸</span>
+            Campaign brief
+          </summary>
+          <dl className="mt-4 grid gap-3 border-t-2 border-ink pt-4 md:grid-cols-2">
             <Fact label="Target audience" value={campaign.target_audience} />
             <Fact label="Objective" value={campaign.objective} />
             <Fact label="Brief and product facts" value={campaign.brief || 'None provided'} />
@@ -225,75 +244,35 @@ export function CampaignWorkspacePage() {
       </header>
 
       {/* Navigation tabs */}
-      <nav aria-label="Campaign sections" className="border-b border-line">
-        <div className="-mb-px flex flex-wrap gap-2 sm:gap-6">
-          <button
-            type="button"
-            onClick={() => setActiveTab('content')}
-            className={`inline-flex items-center gap-2 border-b-2 px-3 py-2.5 text-sm font-medium transition-colors ${
-              activeTab === 'content'
-                ? 'border-brand-primary text-zinc-50'
-                : 'border-transparent text-zinc-400 hover:border-zinc-700 hover:text-zinc-200'
-            }`}
-          >
-            <FileText className="size-4" aria-hidden />
-            Marketing Copy
-            {assets.filter((a) => a.content_type !== 'tagline').length > 0 && (
-              <span className="rounded-full bg-raised px-2 py-0.5 text-xs text-zinc-300">
-                {assets.filter((a) => a.content_type !== 'tagline').length}
-              </span>
-            )}
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveTab('taglines')}
-            className={`inline-flex items-center gap-2 border-b-2 px-3 py-2.5 text-sm font-medium transition-colors ${
-              activeTab === 'taglines'
-                ? 'border-brand-primary text-zinc-50'
-                : 'border-transparent text-zinc-400 hover:border-zinc-700 hover:text-zinc-200'
-            }`}
-          >
-            <Sparkles className="size-4 text-brand-primary" aria-hidden />
-            Taglines & Slogans
-            {assets.filter((a) => a.content_type === 'tagline').length > 0 && (
-              <span className="rounded-full bg-brand-primary/20 px-2 py-0.5 text-xs text-brand-primary">
-                {assets.filter((a) => a.content_type === 'tagline').length}
-              </span>
-            )}
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveTab('visuals')}
-            className={`inline-flex items-center gap-2 border-b-2 px-3 py-2.5 text-sm font-medium transition-colors ${
-              activeTab === 'visuals'
-                ? 'border-brand-primary text-zinc-50'
-                : 'border-transparent text-zinc-400 hover:border-zinc-700 hover:text-zinc-200'
-            }`}
-          >
-            <ImageIcon className="size-4" aria-hidden />
-            Visual Assets
-            {visuals.length > 0 && (
-              <span className="rounded-full bg-raised px-2 py-0.5 text-xs text-zinc-300">
-                {visuals.length}
-              </span>
-            )}
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveTab('strategy')}
-            className={`inline-flex items-center gap-2 border-b-2 px-3 py-2.5 text-sm font-medium transition-colors ${
-              activeTab === 'strategy'
-                ? 'border-brand-primary text-zinc-50'
-                : 'border-transparent text-zinc-400 hover:border-zinc-700 hover:text-zinc-200'
-            }`}
-          >
-            <Compass className="size-4" aria-hidden />
-            Strategy & Brief
-          </button>
-        </div>
+      <nav aria-label="Campaign sections" className="flex flex-wrap gap-3">
+        {tabs.map(({ key, label, icon: Icon, count }) => {
+          const active = activeTab === key
+          return (
+            <button
+              key={key}
+              type="button"
+              onClick={() => setActiveTab(key)}
+              aria-pressed={active}
+              className={`inline-flex cursor-pointer items-center gap-2 rounded-none border-2 border-ink px-4 py-2.5 text-sm font-bold transition-[transform,box-shadow] duration-100 ${
+                active
+                  ? 'bg-lime text-ink shadow-brut-xs'
+                  : 'bg-surface text-ink-soft hover:text-ink active:translate-x-[2px] active:translate-y-[2px]'
+              }`}
+            >
+              <Icon className="size-4" aria-hidden />
+              {label}
+              {typeof count === 'number' && count > 0 && (
+                <span
+                  className={`rounded-none border-2 border-ink px-1.5 py-0.5 text-xs font-bold ${
+                    active ? 'bg-surface' : 'bg-canvas'
+                  }`}
+                >
+                  {count}
+                </span>
+              )}
+            </button>
+          )
+        })}
       </nav>
 
       {/* Tab Panels */}
@@ -330,19 +309,20 @@ export function CampaignWorkspacePage() {
         <section aria-labelledby="content-heading" className="space-y-6">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
-              <h2 id="content-heading" className="text-lg font-semibold text-zinc-100">
+              <h2 id="content-heading" className="font-display text-lg font-bold text-ink">
                 Marketing Copy
               </h2>
-              <p className="text-xs text-zinc-400">
-                Generate social posts, ad copies, video scripts, emails and more tailored to your campaign.
+              <p className="text-sm text-ink-soft">
+                Generate social posts, ad copies, video scripts, emails and more tailored to your
+                campaign.
               </p>
             </div>
             <button
               type="button"
               onClick={() => setActiveTab('taglines')}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-brand-primary/30 bg-brand-primary/10 px-3 py-1.5 text-xs font-medium text-brand-primary hover:bg-brand-primary/20 transition-colors"
+              className="btn-secondary"
             >
-              <Sparkles className="size-3.5" aria-hidden /> Try Taglines & Slogans Studio
+              <Sparkles className="size-4" aria-hidden /> Try Taglines & Slogans Studio
             </button>
           </div>
 
@@ -354,12 +334,12 @@ export function CampaignWorkspacePage() {
               onGenerate={generate}
             />
           ) : (
-            <div className="flex items-center justify-between gap-4 rounded-lg border border-line bg-surface px-4 py-3 text-sm text-zinc-400">
+            <div className="flex flex-wrap items-center justify-between gap-4 rounded-none border-2 border-ink bg-surface px-4 py-3 text-sm font-medium text-ink shadow-brut-xs">
               <span>Generate a campaign strategy first to give your content deep brand alignment.</span>
               <button
                 type="button"
                 onClick={() => setActiveTab('strategy')}
-                className="btn-secondary text-xs"
+                className="btn-secondary"
               >
                 Go to Strategy
               </button>
@@ -369,7 +349,7 @@ export function CampaignWorkspacePage() {
           {generateError && <ErrorMessage message={generateError} />}
           {generating && <LoadingState label="Preparing your content…" />}
 
-          {assets.filter((a) => a.content_type !== 'tagline').length === 0 && !generating ? (
+          {copyCount === 0 && !generating ? (
             <EmptyState
               icon={FileText}
               title="No copy generated yet"
@@ -405,7 +385,10 @@ export function CampaignWorkspacePage() {
 
 function BackLink() {
   return (
-    <Link to="/" className="inline-flex items-center gap-1.5 text-sm text-zinc-400 hover:text-zinc-100">
+    <Link
+      to="/"
+      className="inline-flex cursor-pointer items-center gap-1.5 text-sm font-semibold text-ink-soft hover:text-ink"
+    >
       <ArrowLeft className="size-4" aria-hidden /> Dashboard
     </Link>
   )
@@ -414,8 +397,8 @@ function BackLink() {
 function Fact({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <dt className="text-xs font-semibold tracking-wide text-zinc-500 uppercase">{label}</dt>
-      <dd className="mt-0.5 whitespace-pre-wrap text-zinc-300">{value}</dd>
+      <dt className="text-xs font-bold tracking-wide text-ink-mute uppercase">{label}</dt>
+      <dd className="mt-1 whitespace-pre-wrap text-sm text-ink-soft">{value}</dd>
     </div>
   )
 }

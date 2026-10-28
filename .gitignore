@@ -25,3 +25,9 @@ Thumbs.db
 
 # Uploaded and generated images (user data)
 backend/data/uploads/
+
+# Local tools / IDE
+.claude/
+.impeccable/
+skills-lock.json
+

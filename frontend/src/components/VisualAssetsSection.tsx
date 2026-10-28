@@ -100,15 +100,15 @@ export function VisualAssetsSection({ campaignId, visuals, onChange, imageReady,
   return (
     <section aria-labelledby="visuals-heading" className="space-y-4">
       <div>
-        <h2 id="visuals-heading" className="text-lg font-semibold text-zinc-100">
+        <h2 id="visuals-heading" className="font-display text-lg font-bold text-ink">
           Visual assets
         </h2>
-        <p className="mt-1 text-sm text-zinc-400">Product photos, banners and visuals for this campaign.</p>
+        <p className="mt-1 text-sm text-ink-soft">Product photos, banners and visuals for this campaign.</p>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
         <div className="card space-y-4 p-5">
-          <h3 className="font-medium text-zinc-100">Upload an image</h3>
+          <h3 className="font-display text-base font-bold text-ink">Upload an image</h3>
           <div className="grid gap-4 sm:grid-cols-2">
             <FormField label="Image type" htmlFor="upload-type">
               <select

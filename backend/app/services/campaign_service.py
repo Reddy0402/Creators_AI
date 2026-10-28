@@ -49,6 +49,7 @@ def list_campaigns(db: Session) -> list[CampaignSummary]:
             platform=c.platform,
             has_strategy=c.strategy is not None,
             asset_count=count,
+            status=c.status,
             thumbnail_url=f"/api/images/{visual_id}/file" if visual_id else None,
             created_at=c.created_at,
             updated_at=c.updated_at,

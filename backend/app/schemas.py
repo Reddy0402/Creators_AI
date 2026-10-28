@@ -13,6 +13,7 @@ PLATFORMS = ("Instagram", "LinkedIn", "X", "Facebook", "TikTok", "YouTube", "Ema
 Platform = Literal["Instagram", "LinkedIn", "X", "Facebook", "TikTok", "YouTube", "Email"]
 ContentType = Literal["social_post", "ad_copy", "video_script", "email", "tagline"]
 AssetStatus = Literal["draft", "approved"]
+CampaignStatus = Literal["draft", "active", "completed"]
 RefineAction = Literal[
     "shorten",
     "expand",
@@ -61,6 +62,8 @@ class CampaignUpdate(BaseModel):
     brief: Optional[_limited(4000)] = None
     # Lets the user save edits to the generated strategy.
     strategy: Optional[StrategyOut] = None
+    # Lets the user move a campaign through draft -> active -> completed.
+    status: Optional[CampaignStatus] = None
 
 
 class CampaignOut(BaseModel):
@@ -75,6 +78,7 @@ class CampaignOut(BaseModel):
     tone: str
     brief: str
     strategy: Optional[dict] = None
+    status: CampaignStatus = "draft"
     created_at: UTCDateTime
     updated_at: UTCDateTime
 
@@ -88,6 +92,7 @@ class CampaignSummary(BaseModel):
     platform: str
     has_strategy: bool
     asset_count: int
+    status: CampaignStatus = "draft"
     # URL of the campaign's product image (or first visual), or null when it has none.
     thumbnail_url: Optional[str] = None
     created_at: UTCDateTime

@@ -8,6 +8,12 @@ class AppError(Exception):
         self.message = message
 
 
+class DatabaseError(AppError):
+    """The database cannot be reached or is misconfigured. Message is safe to show to the user."""
+
+    status_code = 503
+
+
 class NotFoundError(AppError):
     status_code = 404
 
